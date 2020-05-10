@@ -1,15 +1,18 @@
 package com.nullok.server.handler;
 
+import com.nullok.annotation.enums.ContentType;
 import com.nullok.core.context.DefaultHanApplicationContext;
 import com.nullok.core.context.HanApplicationContext;
 import com.nullok.core.resolve.HandleMethodArgumentResolver;
-import com.nullok.core.routeMap.RouteContainer;
-import com.nullok.server.http.DefaultHanHttpResponse;
+import com.nullok.core.container.RouteContainer;
+import com.nullok.server.http.impl.DefaultHanHttpResponse;
 import com.nullok.server.http.HanHttpRequest;
 import com.nullok.server.http.HanHttpResponse;
 import com.nullok.utils.PathUtil;
+import com.nullok.utils.ResponseUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
@@ -48,9 +51,15 @@ public class DispatcherRequestHandler extends SimpleChannelInboundHandler<HanHtt
 
         if (null == method) {
             response1.setHttpStatus(HttpResponseStatus.NOT_FOUND);
+            DefaultFullHttpResponse response = ResponseUtil.constructResponse(HttpResponseStatus.NOT_FOUND, uri + "路径不存在", ContentType.PLAIN);
+            ctx.writeAndFlush(response);
         } else {
             // 调用method
-            invokeControllerMethod(method, controller, msg, response1);
+            try {
+                Object result = invokeControllerMethod(method, controller, msg, response1);
+            } catch (InvocationTargetException e) {
+                handleException(e.getTargetException());
+            }
         }
 
         // 回复信息给浏览器
@@ -66,6 +75,9 @@ public class DispatcherRequestHandler extends SimpleChannelInboundHandler<HanHtt
         ctx.writeAndFlush(response);
     }
 
+    private void handleException(Throwable throwable) {
+    }
+
     /**
      * 调用uri对应的方法
      * @param method
@@ -74,24 +86,21 @@ public class DispatcherRequestHandler extends SimpleChannelInboundHandler<HanHtt
      * @param response
      * @return  方法返回值
      */
-    private Object invokeControllerMethod(Method method, Object controller, HanHttpRequest request, HanHttpResponse response) {
+    private Object invokeControllerMethod(Method method, Object controller, HanHttpRequest request, HanHttpResponse response) throws InvocationTargetException, IllegalAccessException {
         method.setAccessible(true);
         HandleMethodArgumentResolver resolver = new HandleMethodArgumentResolver(request, method, controller, response);
         List<Object> params = resolver.resolveParams();
-        try {
-            Object result = method.invoke(controller, params.toArray());
-            System.out.println(result);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return method.invoke(controller, params.toArray());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error(cause.getMessage().toString(),cause);
-        ctx.close();
+        logger.error(cause.getMessage(),cause);
+        DefaultFullHttpResponse response = ResponseUtil.constructResponse(
+                HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                cause.getMessage(),
+                ContentType.PLAIN
+        );
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 }

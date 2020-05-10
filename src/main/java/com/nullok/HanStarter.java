@@ -1,17 +1,13 @@
 package com.nullok;
 
 import com.nullok.annotation.HanAnnotationScanner;
-import com.nullok.annotation.http.mapping.Post;
 import com.nullok.core.context.DefaultHanApplicationContext;
 import com.nullok.exception.BaseException;
-import com.nullok.register.MappingRegister;
+import com.nullok.register.ExceptionRegister;
+import com.nullok.register.RouteRegister;
 import com.nullok.server.HttpServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 /**
  * framework 启动器
@@ -39,10 +35,15 @@ public class HanStarter {
         HanAnnotationScanner hanAnnotationScanner = new HanAnnotationScanner(context);
         hanAnnotationScanner.scan(packagePath);
 
+        // 映射全局异常处理
+        logger.info("开始注册全局异常处理....");
+        ExceptionRegister exceptionRegister = new ExceptionRegister();
+        exceptionRegister.handle();
+
         // 映射路由
         logger.info("开始注册路由....");
-        MappingRegister mappingRegister = new MappingRegister();
-        mappingRegister.doHandle();
+        RouteRegister routeRegister = new RouteRegister();
+        routeRegister.handle();
 
         // 启动netty
         logger.info("启动Netty服务器...");

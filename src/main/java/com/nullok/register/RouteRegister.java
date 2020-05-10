@@ -1,6 +1,5 @@
 package com.nullok.register;
 
-import com.nullok.HanStarter;
 import com.nullok.annotation.beans.RestController;
 import com.nullok.annotation.http.mapping.Delete;
 import com.nullok.annotation.http.mapping.Get;
@@ -13,32 +12,17 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
- * Controller 与 url 映射  单例
+ * 路由注册器
  * @author ：lihan
  * @description：
  * @date ：2020/5/9 18:29
  */
-public class MappingRegister {
-    private final HanApplicationContext context = DefaultHanApplicationContext.getContext();
-    private static Logger logger = LogManager.getLogger(MappingRegister.class);
+public class RouteRegister extends AbstractRegister {
 
-    public void doHandle() {
-        Map<String, Object> controllers = context.getBeansWithAnnotation(RestController.class);
-        for (Map.Entry<String, Object> entry : controllers.entrySet()) {
-            Object controller = entry.getValue();
-            Class<?> controllerClass = controller.getClass();
-            RestController controllerAnnotation = controllerClass.getAnnotation(RestController.class);
-            if (null != controllerAnnotation) {
-                String rootPath = controllerAnnotation.value();
-                Method[] methods = controllerClass.getMethods();
-                for (Method method : methods) {
-                    methodAnnotationHandler(method,rootPath, controller);
-                }
-            }
-        }
+    public RouteRegister() {
+        super(RestController.class);
     }
 
     /**
@@ -47,7 +31,7 @@ public class MappingRegister {
      * @param rootPath 根路径
      * @param controller
      */
-    private void methodAnnotationHandler(Method method, String rootPath, Object controller) {
+    private void doMethodAnnotationHandler(Method method, String rootPath, Object controller) {
         String path = "";
         Class<? extends Annotation> type = null;
         if (method.isAnnotationPresent((type = Get.class))) {
@@ -67,5 +51,17 @@ public class MappingRegister {
             logger.error("路由=>路径：{}，类型：{}，方法：{}，注册失败...", rootPath + path, type.getSimpleName(), method.getName());
         }
 
+    }
+
+    @Override
+    protected void doHandle(Object instance, Class<?> clazz) {
+        RestController controllerAnnotation = clazz.getAnnotation(RestController.class);
+        if (null != controllerAnnotation) {
+            String rootPath = controllerAnnotation.value();
+            Method[] methods = clazz.getMethods();
+            for (Method method : methods) {
+                doMethodAnnotationHandler(method,rootPath, instance);
+            }
+        }
     }
 }

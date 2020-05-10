@@ -1,6 +1,7 @@
-package com.nullok.server.http;
+package com.nullok.server.http.impl;
 
 import com.nullok.annotation.enums.ContentType;
+import com.nullok.server.http.HanHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 

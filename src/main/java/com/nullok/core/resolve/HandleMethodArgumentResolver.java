@@ -44,7 +44,7 @@ public class HandleMethodArgumentResolver {
         this.response = response;
     }
 
-    public List<Object> resolveParams() {
+    public List<Object> resolveParams() throws RouteException{
         Parameter[] parameters = method.getParameters();
         Arrays.stream(parameters).forEach(this::handleAnnotation);
         return params;

@@ -1,14 +1,16 @@
 package com.nullok;
 
 import lombok.Data;
+import org.springframework.stereotype.Service;
 
 /**
  * @author ：lihan
  * @description：
  * @date ：2020/5/10 18:55
  */
-@Data
+@Service
 public class AA {
-    private int a;
-    private String b;
+    public Object a() {
+        throw new RuntimeException("123123");
+    }
 }

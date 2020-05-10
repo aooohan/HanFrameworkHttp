@@ -20,14 +20,15 @@ import org.springframework.stereotype.Controller;
 @RestController("/root")
 public class Demo {
     @Autowired
-    private Demo demo;
+    private AA aa;
 
     @Get("/stat")
     public void stat() {
+        aa.a();
     }
 
     @Post
-    public Object ss(@Param(value = "a",defaultValue = "1",require = false) Integer a, @HeaderParam("Content-Type") String c, @RequestBody AA aa, HanHttpRequest request, HanHttpResponse response) {
+    public Object ss(@Param(value = "a",defaultValue = "1",require = true) Integer a, @HeaderParam("Content-Type") String c, @RequestBody AA aa, HanHttpRequest request, HanHttpResponse response) {
         System.out.println(c);
         System.out.println(a);
         System.out.println(aa);
@@ -43,5 +44,6 @@ public class Demo {
         String str = "/path/{}/pa";
         String[] split = str.split("\\{([^\\}]+)\\}");
         System.out.println(Get.class.getSimpleName());
+
     }
 }

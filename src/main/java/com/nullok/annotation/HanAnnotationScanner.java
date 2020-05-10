@@ -1,6 +1,7 @@
 package com.nullok.annotation;
 
 import com.nullok.annotation.beans.RestController;
+import com.nullok.annotation.exception.ExceptionProcess;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -19,7 +20,7 @@ public class HanAnnotationScanner extends ClassPathBeanDefinitionScanner {
     private static List<Class<? extends Annotation>> annotationList;
 
     static {
-        annotationList = Arrays.asList(RestController.class);
+        annotationList = Arrays.asList(RestController.class, ExceptionProcess.class);
     }
     public HanAnnotationScanner(BeanDefinitionRegistry registry) {
         super(registry);

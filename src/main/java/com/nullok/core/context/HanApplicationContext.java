@@ -1,6 +1,7 @@
 package com.nullok.core.context;
 
-import com.nullok.core.routeMap.RouteContainer;
+import com.nullok.core.container.ExceptionContainer;
+import com.nullok.core.container.RouteContainer;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -9,7 +10,7 @@ import org.springframework.context.ApplicationContext;
  * @description：
  * @date ：2020/5/10 11:15
  */
-public interface HanApplicationContext extends ApplicationContext, RouteContainer {
+public interface HanApplicationContext extends ApplicationContext, RouteContainer, ExceptionContainer {
     /**
      * 获取RouteContainer
      * @return RouteContainer

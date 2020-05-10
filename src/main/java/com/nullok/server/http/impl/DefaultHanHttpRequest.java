@@ -1,5 +1,6 @@
-package com.nullok.server.http;
+package com.nullok.server.http.impl;
 
+import com.nullok.server.http.HanHttpRequest;
 import com.nullok.utils.DecodeUtil;
 import com.nullok.utils.RequestTypeUtil;
 import io.netty.handler.codec.http.FullHttpRequest;

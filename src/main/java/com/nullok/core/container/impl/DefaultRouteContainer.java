@@ -1,14 +1,14 @@
-package com.nullok.core.routeMap;
+package com.nullok.core.container.impl;
 
-import com.nullok.exception.RouteException;
+import com.nullok.core.container.RouteContainer;
 import com.nullok.model.RouteMapModel;
-import com.nullok.utils.PathUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 路由与method 的映射 容器
@@ -59,7 +59,11 @@ public class DefaultRouteContainer implements RouteContainer {
 
     @Override
     public Object getAttrController(String fullPath) {
-        return RouteMap.get(fullPath).getController();
+        RouteMapModel routeMapModel = RouteMap.get(fullPath);
+        if (Objects.isNull(routeMapModel)) {
+            return null;
+        }
+        return routeMapModel.getController();
     }
 
     @Override

@@ -1,12 +1,14 @@
 package com.nullok.core.context;
 
-import com.nullok.core.routeMap.DefaultRouteContainer;
-import com.nullok.core.routeMap.RouteContainer;
+import com.nullok.core.container.impl.DefaultRouteContainer;
+import com.nullok.core.container.RouteContainer;
+import com.nullok.model.ExceptionMapModel;
 import com.nullok.utils.PathUtil;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -19,8 +21,13 @@ import java.util.Objects;
  */
 public class DefaultHanApplicationContext extends AnnotationConfigApplicationContext implements HanApplicationContext {
 
+    // 单例用的
     private static DefaultHanApplicationContext context;
+    // 路由映射容器
     private final RouteContainer routeContainer = new DefaultRouteContainer();
+    // 异常处理映射容器
+    private final Map<Class<? extends Throwable>, ExceptionMapModel> exceptionContainer = new HashMap<>();
+
 
     @Override
     public boolean addAttr(String rootPath, String path, Class<? extends Annotation> type, Method method, Object controller) {
@@ -77,5 +84,40 @@ public class DefaultHanApplicationContext extends AnnotationConfigApplicationCon
     @Override
     public RouteContainer getRouteContainer() {
         return routeContainer;
+    }
+
+    @Override
+    public boolean add(Class<? extends Throwable>[] clazzs,Method method, Object instance) {
+        if (clazzs.length == 0) {
+            return false;
+        }
+        ExceptionMapModel exceptionMapModel = new ExceptionMapModel(instance, method);
+        for (Class<? extends Throwable> clazz : clazzs) {
+            if (containException(clazz)) {
+                continue;
+            }
+            exceptionContainer.put(clazz, exceptionMapModel);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean add(Class<? extends Throwable> clazz, Method method, Object instance) {
+        if (null == clazz || containException(clazz)) {
+            return false;
+        }
+        ExceptionMapModel exceptionMapModel = new ExceptionMapModel(instance, method);
+        exceptionContainer.put(clazz, exceptionMapModel);
+        return true;
+    }
+
+    @Override
+    public ExceptionMapModel get(Class<? extends Throwable> clazz) {
+        return exceptionContainer.get(clazz);
+    }
+
+    @Override
+    public boolean containException(Class<? extends Throwable> clazz) {
+        return exceptionContainer.containsKey(clazz);
     }
 }

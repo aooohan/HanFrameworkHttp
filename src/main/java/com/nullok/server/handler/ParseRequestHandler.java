@@ -1,6 +1,6 @@
 package com.nullok.server.handler;
 
-import com.nullok.server.http.DefaultHanHttpRequest;
+import com.nullok.server.http.impl.DefaultHanHttpRequest;
 import com.nullok.utils.RequestTypeUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
