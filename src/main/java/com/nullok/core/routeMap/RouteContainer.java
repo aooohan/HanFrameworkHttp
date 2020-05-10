@@ -1,62 +1,67 @@
 package com.nullok.core.routeMap;
 
-import com.nullok.core.beans.BeanContainer;
+import com.nullok.exception.RouteException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 路由与method 的映射 容器
- * 全局唯一
  * @author ：lihan
  * @description：
- * @date ：2020/5/9 20:38
+ * @date ：2020/5/10 9:30
  */
-public class RouteContainer {
-    private static volatile RouteContainer routeContainer;
-    private final Map<String, Method> RouteMap = new ConcurrentHashMap<>();
-
+public interface RouteContainer {
     /**
-     * 单例模式，全局唯一，做为Bean容器
-     * @return 容器
+     * 添加路由映射
+     *
+     * @param path   路径
+     * @param type   请求类型
+     * @param method 对应方法
+     * @return 是否添加成功
      */
-    public static RouteContainer getBeanContainer() {
-        // DCL
-        if (Objects.isNull(routeContainer)) {
-            synchronized (BeanContainer.class) {
-                if (Objects.isNull(routeContainer)) {
-                    routeContainer = new RouteContainer();
-                }
-            }
-        }
-        return routeContainer;
-    }
+    boolean addAttr(String rootPath, String path, Class<? extends Annotation> type, Method method, Object controller);
 
     /**
-     * 从容器中删除指定Bean
-     * @param route
+     * 获取对应方法
+     * @param fullPath 路径
+     * @param type 请求类型
+     * @return 方法
      */
-    public void removeRoute(String route) {
-        RouteMap.remove(route);
-    }
+    Method getAttrMethod(String fullPath, Class<? extends Annotation> type);
 
     /**
-     * 向容器中添加Bean
-     * @param route
-     * @param method
-     */
-    public void addRoute(String route, Method method) {
-        RouteMap.put(route, method);
-    }
-
-    /**
-     * 从容器中获取bean
-     * @param route
+     * 获取路径对应的controller实例
+     * @param fullPath
      * @return
      */
-    public Object getRoute(String route) {
-        return RouteMap.get(route);
-    }
+    Object getAttrController(String fullPath);
+
+    /**
+     * 根据路径和类型 判断是否已添加
+     * @param fullPath 路径
+     * @param type 请求类型
+     * @return
+     */
+    boolean containPathAndType(String fullPath, Class<? extends Annotation> type);
+
+    /**
+     * 路由是否存在
+     * @param fullPath 路径
+     * @return
+     */
+    boolean containPath(String fullPath);
+
+    /**
+     * 根据全路径 获取到 请求类型与method 的map
+     * @param fullPath  全路径
+     * @return 映射集合
+     */
+    Map<Class<? extends Annotation>, Method> getTypeAndMethodMap(String fullPath);
+
+
+
+
+
+
 }

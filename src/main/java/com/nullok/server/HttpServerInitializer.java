@@ -1,5 +1,7 @@
 package com.nullok.server;
 
+import com.nullok.server.handler.DispatcherRequestHandler;
+import com.nullok.server.handler.DownloadFileHandler;
 import com.nullok.server.handler.ParseRequestHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -24,7 +26,9 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new HttpObjectAggregator(65536));
         pipeline.addLast(new ChunkedWriteHandler());
         pipeline.addLast(new ParseRequestHandler());
-//        pipeline.addLast(new DemoHandler());
+        pipeline.addLast(new DispatcherRequestHandler());
 
+//        pipeline.addLast(new DownloadFileHandler());
+//        pipeline.addLast(new DemoHandler());
     }
 }

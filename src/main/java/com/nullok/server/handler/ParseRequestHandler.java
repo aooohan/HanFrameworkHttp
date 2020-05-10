@@ -1,55 +1,55 @@
 package com.nullok.server.handler;
 
+import com.nullok.server.http.DefaultHanHttpRequest;
+import com.nullok.utils.RequestTypeUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
 
 /**
+ * 解析请求 => HanHttpRequest
+ *
  * @author ：lihan
  * @description：
  * @date ：2020/5/9 16:21
  */
-public class ParseRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
+public class ParseRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private static Logger logger = LogManager.getLogger(ParseRequestHandler.class);
+
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
-        // 判断是不是HTTP request请求
-        if (msg instanceof FullHttpRequest) {
-            System.out.println("类型 = " + msg.getClass());
-            System.out.println("客户地址 = " + ctx.channel().remoteAddress());
-            FullHttpRequest request = (FullHttpRequest) msg;
-            HttpMethod method = request.method();
-            System.out.println("请求方式" + method.name());
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 
-            String s = request.content().toString(CharsetUtil.UTF_8);
-            System.out.println(s);
+        Class<? extends Annotation> requestType = RequestTypeUtil.stringToClass(msg.method().name());
+        if (null == requestType) {
+            // 回复信息给浏览器
+            ByteBuf buf = Unpooled.copiedBuffer("该类型请求暂不支持", CharsetUtil.UTF_8);
 
-            String uri = request.uri();
-            System.out.println("uri=> "+uri);
-            String name = ctx.name();
-            System.out.println("name=" + name);
-            HttpHeaders headers = request.headers();
-            for (Map.Entry<String, String> entry : request.headers()) {
-                System.out.println(entry);
-            }
+            // 构造一个http response
+            DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.METHOD_NOT_ALLOWED, buf);
 
-
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain;charset=utf-8");
+            response.headers().set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
+            // response 返回
+            ctx.writeAndFlush(response);
+            return;
         }
 
-        // 回复信息给浏览器
-        ByteBuf buf = Unpooled.copiedBuffer("hello,我是服务器", CharsetUtil.UTF_8);
-
-        // 构造一个http response
-        DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
-
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain;charset=utf-8");
-        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
-
-        // response 返回
-        ctx.writeAndFlush(response);
+        // 判断是不是HTTP request请求
+        DefaultHanHttpRequest request = new DefaultHanHttpRequest();
+        try {
+            request.parse(msg, ctx.channel().remoteAddress().toString());
+        } catch (UnsupportedEncodingException e) {
+            logger.error("uri解码失败,{}", msg.uri());
+        }
+        ctx.fireChannelRead(request);
     }
 }

@@ -1,14 +1,13 @@
-package com.nullok.annotation.beans;
+package com.nullok.annotation.http.params;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * 业务层
- */
-@Target(ElementType.TYPE)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Service {
+public @interface HeaderParam {
+    // key的值
+    String value() default "";
 }

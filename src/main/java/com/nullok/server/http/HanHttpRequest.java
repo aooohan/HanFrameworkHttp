@@ -1,6 +1,9 @@
 package com.nullok.server.http;
 
+import java.lang.annotation.Annotation;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * request对象接口
@@ -38,12 +41,25 @@ public interface HanHttpRequest {
      * 获取所有的参数名
      * @return 所有参数名的枚举集合
      */
-    Enumeration<String> getParameterNames();
+    Set<String> getParameterNames();
 
     /**
      * 获取请求方地址
      * @return 地址
      */
     String getRemoteHost();
+
+    /**
+     * 获取请求头
+     * @return
+     */
+    Map<String, String> getHeaders();
+
+    /**
+     * 获取请求方式
+     *
+     * @return
+     */
+    Class<? extends Annotation> getRequestMethod();
 
 }
