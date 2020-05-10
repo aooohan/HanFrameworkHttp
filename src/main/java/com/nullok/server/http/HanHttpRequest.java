@@ -56,10 +56,23 @@ public interface HanHttpRequest {
     Map<String, String> getHeaders();
 
     /**
+     * 获取请求头
+     * @return
+     */
+    String getHeaders(String key);
+
+    /**
      * 获取请求方式
      *
      * @return
      */
     Class<? extends Annotation> getRequestMethod();
+
+    /**
+     * 判断请求参数中是否存在key
+     * @param key 键值
+     * @return
+     */
+    boolean containParameterKey(String key);
 
 }

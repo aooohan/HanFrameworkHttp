@@ -17,7 +17,9 @@ import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author ：lihan
@@ -75,6 +77,21 @@ public class DispatcherRequestHandler extends SimpleChannelInboundHandler<HanHtt
     private Object invokeControllerMethod(Method method, Object controller, HanHttpRequest request, HanHttpResponse response) {
         method.setAccessible(true);
         HandleMethodArgumentResolver resolver = new HandleMethodArgumentResolver(request, method, controller, response);
+        List<Object> params = resolver.resolveParams();
+        try {
+            Object result = method.invoke(controller, params.toArray());
+            System.out.println(result);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
         return null;
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error(cause.getMessage().toString(),cause);
+        ctx.close();
     }
 }

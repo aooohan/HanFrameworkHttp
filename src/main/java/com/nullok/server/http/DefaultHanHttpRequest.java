@@ -83,7 +83,17 @@ public class DefaultHanHttpRequest implements HanHttpRequest {
     }
 
     @Override
+    public String getHeaders(String key) {
+        return headers.get(key);
+    }
+
+    @Override
     public Class<? extends Annotation> getRequestMethod() {
         return method;
+    }
+
+    @Override
+    public boolean containParameterKey(String key) {
+        return parameters.containsKey(key);
     }
 }

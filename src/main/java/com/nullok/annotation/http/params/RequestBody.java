@@ -7,13 +7,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Param {
-    // 参数名
-    String value() default "";
-
-    // 默认值
-    String defaultValue() default "";
-
-    // 参数是否必须
-    boolean require() default true;
+public @interface RequestBody {
 }
