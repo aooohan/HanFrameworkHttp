@@ -2,7 +2,6 @@ package com.nullok.core.interceptor;
 
 import org.springframework.util.Assert;
 
-import javax.naming.ConfigurationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -1,5 +1,6 @@
 package com.nullok.server;
 
+import com.nullok.core.config.PropertiesConfigReader;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -8,6 +9,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import java.net.InetSocketAddress;
 
 /**
  * http服务器
@@ -20,25 +23,22 @@ public class HttpServer {
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
     // 工作线程
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    // 端口号
-    private static final int PORT = 80;
-    // 地址
-    private static final String HOST = "127.0.0.1";
+
     // 启动器
     private static final ServerBootstrap serverBootstrap = new ServerBootstrap();
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(HttpServer.class);
 
-    public static void run() {
+    public static void run(PropertiesConfigReader reader) {
         try {
             // 配置启动器
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new HttpServerInitializer());
 
-            ChannelFuture channelFuture = serverBootstrap.bind(HOST,PORT).sync();
+            ChannelFuture channelFuture = serverBootstrap.bind(reader.getPort()).sync();
             channelFuture.addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {
-                    logger.info("Netty服务器启动，地址: http://" + HOST + ":" + PORT);
+                    logger.info("Netty服务器启动，地址: http://" + reader.getHost() + ":" + reader.getPort());
                 } else {
                     logger.error("Netty服务器启动失败");
                 }

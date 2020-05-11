@@ -27,8 +27,8 @@ public class WebConfig implements WebMvcConfigurer {
             public void afterCompletion(HanHttpRequest request, HanHttpResponse response) throws Exception {
 
             }
-        }).addPathPatterns("/**", "/aa")
-                .excludePathPatterns("/bb");
+        }).addPathPatterns("/root/aa")
+                .excludePathPatterns("/root/bb");
 
     }
 }

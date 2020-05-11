@@ -11,7 +11,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
  * @date ：2020/5/10 17:00
  */
 public class DefaultHanHttpResponse implements HanHttpResponse {
-    private final ContentType contentType;
+    private ContentType contentType;
     private HttpResponseStatus status;
     private HttpHeaders headers;
     private String content;
@@ -34,7 +34,7 @@ public class DefaultHanHttpResponse implements HanHttpResponse {
 
     @Override
     public void setResponseContentType(ContentType type) {
-
+        this.contentType = type;
     }
 
     @Override

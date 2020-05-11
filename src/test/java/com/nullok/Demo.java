@@ -1,6 +1,7 @@
 package com.nullok;
 
 import com.nullok.annotation.beans.RestController;
+import com.nullok.annotation.http.mapping.Delete;
 import com.nullok.annotation.http.mapping.Get;
 import com.nullok.annotation.http.mapping.Post;
 import com.nullok.annotation.http.mapping.Put;
@@ -11,7 +12,6 @@ import com.nullok.server.http.HanHttpRequest;
 import com.nullok.server.http.HanHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 
 /**
  * @author ：lihan
@@ -23,9 +23,9 @@ public class Demo {
     @Autowired
     private AA aa;
 
+
     @Get("/stat")
     public void stat() {
-        aa.a();
     }
 
     @Get("/stat1")
@@ -43,9 +43,14 @@ public class Demo {
         response.setHttpStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR);
         return new AA();
     }
-    @Put
+    @Put("/aa")
     public void aa() {
+        System.out.println(123123);
+    }
 
+    @Delete("/bb")
+    public void adsasd() {
+        System.out.println(15555);
     }
     public static void main(String[] args) {
         String str = "/path/{}/pa";

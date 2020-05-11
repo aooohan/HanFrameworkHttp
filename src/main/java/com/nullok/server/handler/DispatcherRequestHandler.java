@@ -1,6 +1,5 @@
 package com.nullok.server.handler;
 
-import com.nullok.annotation.beans.RestController;
 import com.nullok.annotation.enums.ContentType;
 import com.nullok.core.context.DefaultHanApplicationContext;
 import com.nullok.core.context.HanApplicationContext;
@@ -16,20 +15,16 @@ import com.nullok.server.http.HanHttpResponse;
 import com.nullok.utils.ParseUtil;
 import com.nullok.utils.PathUtil;
 import com.nullok.utils.ResponseUtil;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
-import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -39,16 +34,11 @@ import java.util.Objects;
  */
 public class DispatcherRequestHandler extends SimpleChannelInboundHandler<HanHttpRequest> {
 
-    private final HanApplicationContext context;
-    private final RouteContainer routeContainer;
+    private final HanApplicationContext context = DefaultHanApplicationContext.getContext();
+    private final RouteContainer routeContainer = context.getRouteContainer();
+    private final InterceptorRegistry interceptorRegistry = (InterceptorRegistry) context.getBean("interceptorRegister");
     private static final Logger logger = LogManager.getLogger(DispatcherRequestHandler.class);
-    private final InterceptorRegistry interceptorRegistry;
 
-    {
-        context = DefaultHanApplicationContext.getContext();
-        interceptorRegistry = context.getBean(InterceptorRegistry.class);
-        routeContainer = context.getRouteContainer();
-    }
 
 
     @Override
@@ -62,21 +52,25 @@ public class DispatcherRequestHandler extends SimpleChannelInboundHandler<HanHtt
         HanHttpResponse hanResponse = new DefaultHanHttpResponse();
         // todo session 未设置
 
-        if (processInterceptor(trimUri, msg, hanResponse)) {
-            if (null == method) {
-                hanResponse.setHttpStatus(HttpResponseStatus.NOT_FOUND);
-                String info = "<html><head><title>404 NOT FOUND</title></head><body><h2>你请求uri为：" + uri+"该页面不存在</h2></body></html>";
-                hanResponse.setContent(info);
-            } else {
-                Object invokeResult;
-                // 调用method
-                try {
-                    invokeResult = invokeControllerMethod(method, controller, msg, hanResponse);
-                } catch (InvocationTargetException e) {
-                    invokeResult = handleException(e.getTargetException());
-                }
-                hanResponse.setContent(ParseUtil.stringify(invokeResult));
+        // 处理拦截器
+        if (!processInterceptor(trimUri, msg, hanResponse)) {
+            if (HttpResponseStatus.OK == hanResponse.getStatus()) {
+                hanResponse.setHttpStatus(HttpResponseStatus.FORBIDDEN);
             }
+        }else if (null == method) {
+            hanResponse.setHttpStatus(HttpResponseStatus.NOT_FOUND);
+            hanResponse.setResponseContentType(ContentType.HTML);
+            String info = "<html><head><title>404 NOT FOUND</title></head><body><h2>你请求uri为：" + uri+"该页面不存在</h2></body></html>";
+            hanResponse.setContent(info);
+        } else {
+            Object invokeResult;
+            // 调用method
+            try {
+                invokeResult = invokeControllerMethod(method, controller, msg, hanResponse);
+            } catch (InvocationTargetException e) {
+                invokeResult = handleException(e.getTargetException());
+            }
+            hanResponse.setContent(ParseUtil.stringify(invokeResult));
         }
 
         DefaultFullHttpResponse defaultFullHttpResponse = ResponseUtil.constructResponse(hanResponse);
@@ -88,10 +82,15 @@ public class DispatcherRequestHandler extends SimpleChannelInboundHandler<HanHtt
     }
 
     /**
-     * 执行用户配置的拦截器
+     * 执行拦截器
+     * @param uri
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception
      */
     private boolean processInterceptor(String uri,HanHttpRequest request, HanHttpResponse response) throws Exception {
-        if (interceptorRegistry != null) {
+        if (null != interceptorRegistry) {
             List<InterceptorRegistration> registrations = interceptorRegistry.getRegistrations();
             for (InterceptorRegistration registration : registrations) {
                 List<String> includePatterns = registration.getIncludePatterns();
