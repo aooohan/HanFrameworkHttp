@@ -1,4 +1,4 @@
-package com.nullok.core.resolve;
+package com.nullok.core.resolve.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.nullok.annotation.http.params.HeaderParam;
@@ -7,6 +7,7 @@ import com.nullok.annotation.http.params.RequestBody;
 import com.nullok.exception.RouteException;
 import com.nullok.server.http.HanHttpRequest;
 import com.nullok.server.http.HanHttpResponse;
+import com.nullok.utils.ParseUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
@@ -26,15 +27,15 @@ import java.util.Objects;
  */
 public class HandleMethodArgumentResolver {
     // 请求体
-    private HanHttpRequest request;
+    private final HanHttpRequest request;
     // 对应的method
-    private Method method;
+    private final Method method;
     // 对应的类实例
-    private Object controller;
+    private final Object controller;
     // 响应体
-    private HanHttpResponse response;
+    private final HanHttpResponse response;
     // 解析完之后与参数列表对应的值
-    private List<Object> params = new ArrayList<>();
+    private final List<Object> params = new ArrayList<>();
 
 
     public HandleMethodArgumentResolver(HanHttpRequest request, Method method, Object controller, HanHttpResponse response) {
@@ -105,7 +106,7 @@ public class HandleMethodArgumentResolver {
         } else if (parameter.isAnnotationPresent(RequestBody.class)) {
             Class<?> type = parameter.getType();
             String body = request.getContent();
-            Object o = JSON.parseObject(body, type);
+            Object o = ParseUtil.parse(body, type);
             params.add(o);
         } else {
             if (parameter.getType().equals(HanHttpRequest.class)) {

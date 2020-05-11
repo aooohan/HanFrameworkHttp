@@ -4,7 +4,6 @@ package com.nullok.register;
 import com.nullok.annotation.exception.Catch;
 import com.nullok.annotation.exception.ExceptionProcess;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
@@ -27,7 +26,7 @@ public class ExceptionRegister extends AbstractRegister {
                 Catch annotation = method.getAnnotation(Catch.class);
                 Class<? extends Throwable>[] exceptions = annotation.value();
                 for (Class<? extends Throwable> exception : exceptions) {
-                    boolean flag = context.add(exception, method, instance);
+                    boolean flag = context.addException(exception, method, instance);
                     if (flag) {
                         logger.info("全局异常处理=>异常：{}，类：{}，方法：{}，注册成功...", exception.getSimpleName(), clazz.getSimpleName(), method.getName());
                     } else {

@@ -9,9 +9,9 @@ package com.nullok.annotation.enums;
 public enum ContentType {
     JSON("application/json; charset=UTF-8"),
     HTML("text/html; charset=UTF-8"),
-    PLAIN("text/plain; charset=UTF-8");
+    PLAIN("text/plain;charset=utf-8");
 
-    private String value;
+    private final String value;
 
     ContentType(String value) {
         this.value = value;

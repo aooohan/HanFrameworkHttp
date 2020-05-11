@@ -14,7 +14,7 @@ public interface HanHttpResponse {
      * 获取响应类型
      * @return ContentType
      */
-    ContentType getResponseContentType();
+    String getResponseContentType();
 
     /**
      * 设置响应类型
@@ -45,6 +45,20 @@ public interface HanHttpResponse {
      * @param status
      */
     void setHttpStatus(HttpResponseStatus status);
+
+
+    /**
+     * 设置响应内容
+     * @param content
+     */
+    void setContent(String content);
+
+    /**
+     * 获取content
+     * @param content
+     * @return
+     */
+    String getContent();
 
 
 

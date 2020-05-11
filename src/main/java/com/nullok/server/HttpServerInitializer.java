@@ -1,8 +1,6 @@
 package com.nullok.server;
 
-import com.nullok.server.handler.DispatcherRequestHandler;
-import com.nullok.server.handler.DownloadFileHandler;
-import com.nullok.server.handler.ParseRequestHandler;
+import com.nullok.server.handler.*;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;

@@ -17,7 +17,7 @@ public interface ExceptionContainer {
      * @param clazzs
      * @return
      */
-    boolean add(Class<? extends Throwable> [] clazzs,Method method, Object instance);
+    boolean addException(Class<? extends Throwable> [] clazzs, Method method, Object instance);
 
     /**
      * 向容器中添加映射
@@ -26,14 +26,14 @@ public interface ExceptionContainer {
      * @param instance 方法所在类的实例
      * @return
      */
-    boolean add(Class<? extends Throwable> clazz, Method method,Object instance);
+    boolean addException(Class<? extends Throwable> clazz, Method method, Object instance);
 
     /**
      * 从容器中获取对应的 处理方法
      * @param clazz 异常类class
      * @return ExceptionMapModel
      */
-    ExceptionMapModel get(Class<? extends Throwable> clazz);
+    ExceptionMapModel getException(Class<? extends Throwable> clazz);
 
     /**
      * 容器中是否存在

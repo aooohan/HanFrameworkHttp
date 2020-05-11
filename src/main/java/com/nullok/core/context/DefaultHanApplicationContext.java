@@ -87,7 +87,7 @@ public class DefaultHanApplicationContext extends AnnotationConfigApplicationCon
     }
 
     @Override
-    public boolean add(Class<? extends Throwable>[] clazzs,Method method, Object instance) {
+    public boolean addException(Class<? extends Throwable>[] clazzs, Method method, Object instance) {
         if (clazzs.length == 0) {
             return false;
         }
@@ -102,7 +102,7 @@ public class DefaultHanApplicationContext extends AnnotationConfigApplicationCon
     }
 
     @Override
-    public boolean add(Class<? extends Throwable> clazz, Method method, Object instance) {
+    public boolean addException(Class<? extends Throwable> clazz, Method method, Object instance) {
         if (null == clazz || containException(clazz)) {
             return false;
         }
@@ -111,9 +111,24 @@ public class DefaultHanApplicationContext extends AnnotationConfigApplicationCon
         return true;
     }
 
+    /**
+     * 遍历容器，根据asSubclass 来判定 clazz 存不存在其本身 或者 父类的映射关系
+     * 只能上转型
+     * @param clazz 异常类class
+     * @return
+     */
     @Override
-    public ExceptionMapModel get(Class<? extends Throwable> clazz) {
-        return exceptionContainer.get(clazz);
+    public ExceptionMapModel getException(Class<? extends Throwable> clazz) {
+        for (Map.Entry<Class<? extends Throwable>, ExceptionMapModel> entry : exceptionContainer.entrySet()) {
+            Class<? extends Throwable> key = entry.getKey();
+            try {
+                clazz.asSubclass(key);
+            } catch (ClassCastException e) {
+                continue;
+            }
+            return entry.getValue();
+        }
+        return null;
     }
 
     @Override

@@ -11,18 +11,25 @@ import io.netty.handler.codec.http.HttpResponseStatus;
  * @date ：2020/5/10 17:00
  */
 public class DefaultHanHttpResponse implements HanHttpResponse {
-    private ContentType contentType;
+    private final ContentType contentType;
     private HttpResponseStatus status;
     private HttpHeaders headers;
+    private String content;
 
     public DefaultHanHttpResponse() {
         status = HttpResponseStatus.OK;
         contentType = ContentType.JSON;
     }
 
+    public DefaultHanHttpResponse(ContentType contentType, HttpResponseStatus status, String content) {
+        this.contentType = contentType;
+        this.status = status;
+        this.content = content;
+    }
+
     @Override
-    public ContentType getResponseContentType() {
-        return null;
+    public String getResponseContentType() {
+        return contentType.value();
     }
 
     @Override
@@ -32,7 +39,7 @@ public class DefaultHanHttpResponse implements HanHttpResponse {
 
     @Override
     public HttpResponseStatus getStatus() {
-        return null;
+        return status;
     }
 
     @Override
@@ -48,5 +55,15 @@ public class DefaultHanHttpResponse implements HanHttpResponse {
     @Override
     public void setHttpStatus(HttpResponseStatus status) {
         this.status = status;
+    }
+
+    @Override
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String getContent() {
+        return this.content;
     }
 }

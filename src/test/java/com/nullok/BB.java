@@ -13,9 +13,14 @@ import com.nullok.exception.RouteException;
 @ExceptionProcess
 public class BB {
 
-    @Catch(value = {BeanException.class, RouteException.class})
-    public Object pi() {
+    @Catch(value = {BeanException.class})
+    public Object pi(Throwable throwable) {
 
         return new AA();
+    }
+    @Catch(value = { Exception.class})
+    public Object co(Throwable throwable) {
+        System.out.println(throwable.getMessage());
+        return new Cc();
     }
 }
